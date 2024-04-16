@@ -26,6 +26,13 @@ def generate_aes_key(key_length: int = 32) -> int:
     -------
     key : bytes
         The random AES key.
+
+    Notes
+    -----
+    In this example, os.urandom is used instead of random as
+    on the other hand cannot be seeded and draws its source of entropy
+    from many unpredictable sources, making it more random. It is more
+    suitable for cryptographic purposes.
     """
 
     key = os.urandom(key_length)
