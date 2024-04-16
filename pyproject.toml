@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "stegosaurus"
+version = "0.1.0"
+description = "Stegosaurus is a password encryption tool that will take text (in this case, a password) and embed it into a cover image using image steganography."
+authors = ["Patrick Walsh <pw4.2020@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^3.1.0"
+black = "^24.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
