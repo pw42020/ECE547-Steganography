@@ -3,17 +3,30 @@ from PIL import Image
 from Crypto.Cipher import AES
 import os
 
+def access_bit(data, num):
+    base = int(num // 8)
+    shift = int(num % 8)
+    return (data[base] >> shift) & 0x1
+
+
 def encode(img, message, name):
 
     # Getting image's [R, G, B] values
     cover = Image.open(img, "r")
     width, height = cover.size
     color_array = np.array(list(cover.getdata()))
-    # print(color_array)
+    if len(color_array[0]) == 3:
+        n = 3
+    elif len(color_array[1]) == 4:
+        n = 4
 
-    message += "end"    # Delimiter
-    message_binary = "".join([format(ord(i), "b") for i in message])
+    # message += b'' # Delimiter
+    # print(message)
+    message = [str(access_bit(message, i)) for i in range(len(message)*8)]
+    message_binary = "".join(message)
+    # print(message_binary)
     total_pixels = len(message_binary)
+    # image_rrg.png encoded.jpg
     print(f"Total Pixels: {total_pixels} \nBinary Stream: {message_binary}\n")
 
     pixels_amount = len(color_array)
@@ -22,19 +35,20 @@ def encode(img, message, name):
     else:
         i = 0       # Index counter for message
         for pix in range(pixels_amount):
-            for rgb in range(0, 3):     # Bit of R, G, and B
+            for rgb in range(0, n):     # Bit of R, G, and B
                 if i < total_pixels:    # As long as enough pixels
-                    print(bin(color_array[pix][rgb]), message_binary[i])
-                    print(f"Before: {color_array[pix][rgb]}")
+                    # print(bin(color_array[pix][rgb]), message_binary[i])
+                    # print(f"Before: {color_array[pix][rgb]}")
                     if bin(color_array[pix][rgb])[-1] == "1" and message_binary[i] == "0":
                         color_array[pix][rgb] = color_array[pix][rgb] - 1
                     elif bin(color_array[pix][rgb])[-1] == "0" and message_binary[i] == "1":
                         color_array[pix][rgb] = color_array[pix][rgb] + 1
-                    print(bin(color_array[pix][rgb]))
-                    print(f"After: {color_array[pix][rgb]}\n")
+                    # print(bin(color_array[pix][rgb]))
+                    # print(f"After: {color_array[pix][rgb]}\n")
                     i += 1
 
-        color_array = color_array.reshape(height, width, 3)
+        print(color_array)
+        color_array = color_array.reshape(height, width, n)
         encoded_img = Image.fromarray(color_array.astype("uint8"), cover.mode)
         encoded_img.save(f"{name}")
         print("Image encoded")
@@ -54,18 +68,19 @@ def AES_decrypt(ciphertext, key, nonce, tag):
     
 
 def main():
-    #print("input: <cover> <message> <out_name.jpg>")
-    # 10x10.jpg data encoded.jpg
-    #cover, message, name = input().split()
-
-    #encode(cover, message, name)
-    
     # AES Encryption
     data = b'this is a test.'
     key = os.urandom(16)
     c, n, t = AES_encrypt(data, key)
+
+    print("If RGB --> .jpg, If RGBA --> .png")
+    print("input: <cover> <out_name.jpg or out_name.png>")
+    # 10x10.jpg data encoded.jpg
+    cover, name = input().split()
+    encode(cover, c, name)
+    
     #print("CIPHERTEXT: ", c)
-    pt = AES_decrypt(c, key, n, t)
+    # pt = AES_decrypt(c, key, n, t)
     #print("DECRYPTED PLAINTEXT ", pt)
 
 if __name__ == "__main__":
