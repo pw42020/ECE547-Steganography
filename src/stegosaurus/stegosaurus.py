@@ -47,7 +47,9 @@ def encode(key: bytes, img: str, message: bytes, name: str) -> int:
 
     # Convert message to binary
     # message += b"$3cur17y"  # Delimeter so we can find the end of the message
-    message = [str(access_bit(message, i)) for i in range(len(message) * 8)]
+    # change message into string of 1s and 9s
+    message = "".join([format(byte, "08b") for byte in message])
+    print(f"MESSAGE: {message}")
     message_binary = "".join(message)
     total_pixels = len(message_binary)  # Number of pixels needed to encode our message
     print(f"Total Pixels: {total_pixels} \nBinary Stream: {message_binary}\n")
@@ -142,7 +144,7 @@ def decode(stegoimg: str, key: bytes, total_pixels: int) -> bytes:
 
     print(len(retrieve_bits), total_pixels)
     print("DECRYPT - BinaryStream:", retrieve_bits)
-    return int(retrieve_bits, base=2).to_bytes(total_pixels, byteorder="big")
+    return int(retrieve_bits, base=2).to_bytes(total_pixels // 8, byteorder="big")
 
 
 def AES_encrypt(data, key):
