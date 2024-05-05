@@ -2,7 +2,7 @@ import sys
 import argparse
 import logging
 from .utils import log
-from .analyze import enhanced_lsb_matching
+from .analyze import ones_vs_zeros_matching
 
 parser = argparse.ArgumentParser(
     prog="Steganalysis for Stegosaurus",
@@ -24,4 +24,4 @@ if __name__ == "__main__":
         log.setLevel(logging.DEBUG)
         log.debug("Verbose mode enabled.")
 
-    enhanced_lsb_matching(args.filename)
+    ones_vs_zeros_matching(args.filename)

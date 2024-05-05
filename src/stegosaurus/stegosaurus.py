@@ -1,12 +1,14 @@
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFile
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from Crypto.Cipher import AES
 import random
 
 from .utils import log, generate_aes_key
 
 
-# stegosaurus/10x10.jpg stegosaurus/data.txt hello.png
+# ../images/dog.png stegosaurus/data.txt hello.png
 def access_bit(data, num):
     base = int(num // 8)
     shift = int(num % 8)
@@ -40,7 +42,9 @@ def encode(key: bytes, img: str, message: bytes, name: str) -> int:
     cover = Image.open(img, "r")
     width, height = cover.size
     color_array = np.array(list(cover.getdata()))
-    if len(color_array[0]) == 3:
+    if type(color_array[0]) == np.int64:
+        return -1
+    elif len(color_array[0]) == 3:
         n = 3
     elif len(color_array[1]) == 4:
         n = 4
@@ -68,7 +72,9 @@ def encode(key: bytes, img: str, message: bytes, name: str) -> int:
     if (
         total_pixels > pixels_amount
     ):  # Check if image is big enough to store message data
-        print("Image is too small to encode")
+        print(
+            f"Image is too small to encode\nHave {total_pixels} pixels needed {pixels_amount} pixels"
+        )
     else:
         indexes_to_change = []
         while len(indexes_to_change) < total_pixels:  # Generate order of pixels to edit
@@ -93,7 +99,8 @@ def encode(key: bytes, img: str, message: bytes, name: str) -> int:
 
         color_array = color_array.reshape(height, width, n)
         encoded_img = Image.fromarray(color_array.astype("uint8"), cover.mode)
-        encoded_img.save(f"{name}")
+        encoded_img.save(name)
+        print(f"saved to ${name}")
         print("End: Stego Object Image Created\n")
         return i
 
@@ -140,7 +147,7 @@ def decode(stegoimg: str, key: bytes, total_pixels: int) -> bytes:
     retrieve_bits = ""
     pixels_amount = len(color_array)
     for index in indexes_to_change:
-        retrieve_bits += bin(color_array[index][n - 1])[-1]
+        retrieve_bits += bin(color_array[index])[-1]
 
     print(len(retrieve_bits), total_pixels)
     print("DECRYPT - BinaryStream:", retrieve_bits)
