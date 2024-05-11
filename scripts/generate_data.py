@@ -6,7 +6,7 @@ import csv
 from typing import Final
 from pathlib import Path
 
-NUM_IMAGES_TO_CHECK: Final[int] = 100
+NUM_IMAGES_TO_CHECK: Final[int] = 5000
 PATH_TO_IMAGES: Final[Path] = Path(__file__).parent.parent / "images" / "cover"
 PATH_TO_GENERATED_IMAGES: Final[Path] = (
     Path(__file__).parent.parent / "images" / "stego"
